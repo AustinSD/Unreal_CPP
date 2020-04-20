@@ -5,16 +5,22 @@ void UBullCowCartridge::BeginPlay() // When the game starts
 {
     Super::BeginPlay();
     PrintLine(TEXT("MOOOO!! Welcome to Bull Cow!"));
-    PrintLine(TEXT("Please enter yout name."));
+    HiddenWord = TEXT("austin");
+    PrintLine(TEXT("Please enter your guess."));
 }
 
-void UBullCowCartridge::OnInput(const FString& Input) // When the player hits enter
+void UBullCowCartridge::OnInput(const FString &Input) // When the player hits enter
 {
-    FString HiddenWord = TEXT("austin");
-
     ClearScreen();
     PrintLine(TEXT("You've entered:"));
     PrintLine(Input);
-    PrintLine(TEXT("The HiddenWord is ") + HiddenWord);
-    
+
+    if (Input == HiddenWord)
+    {
+        PrintLine(TEXT("You are correct!"));
+    }
+    else
+    {
+        PrintLine(TEXT("You where wrong. The HiddenWord is ") + HiddenWord);
+    }
 }
