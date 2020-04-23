@@ -6,7 +6,7 @@ void UBullCowCartridge::BeginPlay() // When the game starts
 {
     Super::BeginPlay();
 
-    ValidWords = GetValidWords(HiddenWordsArray);
+    Isograms = GetValidWords(HiddenWordsArray);
 
     SetUpGame();
     WelcomePlayer();
@@ -68,10 +68,9 @@ void UBullCowCartridge::ProcessGuess(const FString& Guess)
     PrintLine(TEXT("Your guess was incorrect!"));
     PrintLine(TEXT("You now have %i lives left."), NumberLives);
 
-    int32 Bulls, Cows;
-    GetBullCows(Guess, Bulls, Cows);
-
-    PrintLine(TEXT("Your current Bulls: %i, Cows %i."), Bulls, Cows);
+    FBullCowCount BullCowCount = GetBullCows(Guess);
+    
+    PrintLine(TEXT("Your current Bulls: %i, Cows %i."), BullCowCount.Bulls, BullCowCount.Cows);
     PrintLine(TEXT("Guess again."));
 }
 
@@ -90,16 +89,15 @@ bool UBullCowCartridge::IsIsogram(const FString& Word) const
     return true;
 }
 
-void UBullCowCartridge::GetBullCows(const FString& Guess, int32& BullCount, int32& CowCount) const
+FBullCowCount UBullCowCartridge::GetBullCows(const FString& Guess) const
 {
-    BullCount = 0;
-    CowCount = 0;
+    FBullCowCount BCCount;
 
     for(int32 GuessIndex = 0; GuessIndex < Guess.Len(); GuessIndex++)
     {
         if(Guess[GuessIndex] == HiddenWord[GuessIndex])
         {
-            BullCount++;
+            BCCount.Bulls++;
             continue; //We can continue since the word is an isogram
         }
 
@@ -107,11 +105,13 @@ void UBullCowCartridge::GetBullCows(const FString& Guess, int32& BullCount, int3
         {
             if(Guess[GuessIndex] == HiddenWord[HiddenIndex])
             {
-                CowCount++;
+                BCCount.Cows++;
                 break; //We can break since the word is an isogram
             }
         }
     }
+    
+    return BCCount;
 }
 
 TArray<FString> UBullCowCartridge::GetValidWords(const TArray<FString>& WordArray) const
@@ -130,13 +130,13 @@ TArray<FString> UBullCowCartridge::GetValidWords(const TArray<FString>& WordArra
 
 void UBullCowCartridge::SetUpGame()
 {
-    int32 RandNum = FMath::RandRange(0, ValidWords.Num() - 1);
-    HiddenWord = ValidWords[RandNum];//TEXT("john");
+    int32 RandNum = FMath::RandRange(0, Isograms.Num() - 1);
+    HiddenWord = Isograms[RandNum];
     NumberLives = HiddenWord.Len();
     bGameOver = false;
 
     // DEBUG code
-    PrintLine(TEXT("DEBUG -- ValidWords length %i"), ValidWords.Num());
+    PrintLine(TEXT("DEBUG -- Isograms list length %i"), Isograms.Num());
     PrintLine(TEXT("DEBUG -- HiddenWord: %s"), *HiddenWord);
 }
 
@@ -146,8 +146,6 @@ void UBullCowCartridge::WelcomePlayer()
     PrintLine(TEXT("Your goal is to guess the isogram."));
     PrintLine(TEXT("The word is of length %i"), HiddenWord.Len());
     PrintLine(TEXT("You now have %i lives. Don't screw up."), NumberLives);
-
-    // Prompt for guess
     PrintLine(TEXT("Please enter your guess."));
 }
 
