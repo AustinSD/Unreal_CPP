@@ -6,8 +6,6 @@ void UBullCowCartridge::BeginPlay() // When the game starts
 {
     Super::BeginPlay();
 
-    Isograms = GetValidWords(HiddenWordsArray);
-
     SetUpGame();
     WelcomePlayer();
 }
@@ -18,6 +16,7 @@ void UBullCowCartridge::OnInput(const FString& PlayerInput) // When the player h
     if (bGameOver)
     {
         ClearScreen();
+        CurrentLevel = 3;
         SetUpGame();
         WelcomePlayer();
     }
@@ -32,8 +31,17 @@ void UBullCowCartridge::ProcessGuess(const FString& Guess)
     if (Guess.Equals(HiddenWord))
     {
         PrintLine(TEXT("You are correct!"));
-        PrintLine(TEXT("You win the level!"));
-        EndGame();
+        PrintLine(TEXT("You pass level %i!"), CurrentLevel);
+        CurrentLevel++;
+
+        if(CurrentLevel == 10){
+            PrintLine(TEXT("WOW, you beat level 9. You win the game!!"));
+            EndGame();
+        } 
+        else{
+            SetUpGame();
+        }
+
         return;
     }
 
@@ -114,13 +122,14 @@ FBullCowCount UBullCowCartridge::GetBullCows(const FString& Guess) const
     return BCCount;
 }
 
-TArray<FString> UBullCowCartridge::GetValidWords(const TArray<FString>& WordArray) const
+TArray<FString> UBullCowCartridge::GetValidWords(const TArray<FString>& WordArray, int32& Level) const
 {
     TArray<FString> ValidArray;
 
     for(FString TempWord : WordArray)
     {
-        if(TempWord.Len() >= 4 && TempWord.Len() <= 8 && IsIsogram(TempWord))
+        //if(TempWord.Len() >= 4 && TempWord.Len() <= 8 && IsIsogram(TempWord))
+        if(TempWord.Len() == Level && IsIsogram(TempWord))
         {
             ValidArray.Emplace(TempWord.ToLower());
         }
@@ -130,13 +139,15 @@ TArray<FString> UBullCowCartridge::GetValidWords(const TArray<FString>& WordArra
 
 void UBullCowCartridge::SetUpGame()
 {
+    Isograms = GetValidWords(HiddenWordsArray, CurrentLevel);
+
     int32 RandNum = FMath::RandRange(0, Isograms.Num() - 1);
     HiddenWord = Isograms[RandNum];
-    NumberLives = HiddenWord.Len();
+    NumberLives = HiddenWord.Len() + 3;
     bGameOver = false;
 
     // DEBUG code
-    PrintLine(TEXT("DEBUG -- Isograms list length %i"), Isograms.Num());
+    PrintLine(TEXT("DEBUG -- Current Level: %i"), CurrentLevel);
     PrintLine(TEXT("DEBUG -- HiddenWord: %s"), *HiddenWord);
 }
 

@@ -25,7 +25,7 @@ class BULLCOWGAME_API UBullCowCartridge : public UCartridge
 	void WelcomePlayer();
 	void ProcessGuess(const FString& Guess);
 	bool IsIsogram(const FString& Word) const;
-	TArray<FString> GetValidWords(const TArray<FString>& WordArray) const;
+	TArray<FString> GetValidWords(const TArray<FString>& WordArray, int32& Level) const;
 	FBullCowCount GetBullCows(const FString& Guess) const;
 
 	// Your declarations go below!
@@ -33,5 +33,6 @@ class BULLCOWGAME_API UBullCowCartridge : public UCartridge
 	TArray<FString> Isograms;
 	FString HiddenWord;
 	int32 NumberLives;
+	int32 CurrentLevel = 3; //Start the level a 3 to get 3 letter words
 	bool bGameOver;
 };
